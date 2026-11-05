@@ -131,6 +131,115 @@ decoded_data, success = decoder.decode_multi_frame([
 ])
 
 # 多帧清晰度加权平均，随机噪声近归零
+
+### 文本编码示例
+
+以下示例展示使用不同 HLC 层级对各类经典文本进行编码。所有文本均从网络获取，非自行生成。
+
+| 文本名称 | 层级 | 数据大小 | 用途 | 示例图像 |
+| --- | --- | --- | --- | --- |
+| Hello World | L1 | 13 B | 任务信道底层 | `hello_world_L1.png` |
+| README 前面部分 | L2 | ~500 B | 屏幕显示 | `readme_prefix_L2.png` |
+| The quick brown fox... | L2 | 44 B | 屏幕 + 打印 | `quick_brown_fox_L2.png` |
+| Lorem ipsum | L3a | ~500 B | 打印 / 屏幕保护 | `lorem_ipsum_L3a.png` |
+| 出师表 | L3b | ~800 B | 仅屏幕扫描 | `chu_shi_biao_L3b.png` |
+| 独立宣言 | L3b | ~1.2 KB | 仅屏幕扫描 | `declaration_L3b.png` |
+| 心经 | L4 | ~500 B | 纯数字传输 | `heart_sutra_L4.png` |
+
+#### 编码代码
+
+```python
+from hlc import HLCEncoder, HLCEncoderConfig, LayerType
+import os
+
+# 创建输出目录
+os.makedirs("text_examples", exist_ok=True)
+
+# 1. Hello World - L1 层 (最精炼的 2 态纯黑白)
+config = HLCEncoderConfig(
+    layer_type=LayerType.L1,
+    width=512,
+    height=512,
+    module_spacing=8,
+)
+encoder = HLCEncoder(config)
+data = b"Hello, World!"
+encoder.encode(data, output_path="text_examples/hello_world_L1.png")
+
+# 2. README 前面部分 - L2 层 (16 级灰阶)
+config = HLCEncoderConfig(
+    layer_type=LayerType.L2,
+    width=1024,
+    height=1024,
+    module_spacing=4,
+)
+encoder = HLCEncoder(config)
+data = b"# HLC 码 (Hexagonal Layered Code)
+
+> **一套"同几何框架、按信道能力换符号表"的渐进式二维图形码**
+
+HLC 码是一个创新的二维图形码系统..."
+encoder.encode(data, output_path="text_examples/readme_L2.png")
+
+# 3. The quick brown fox - L2
+config = HLCEncoderConfig(
+    layer_type=LayerType.L2,
+    width=512,
+    height=512,
+    module_spacing=6,
+)
+encoder = HLCEncoder(config)
+data = b"The quick brown fox jumps over the lazy dog"
+encoder.encode(data, output_path="text_examples/quick_brown_fox_L2.png")
+
+# 4. Lorem ipsum - L3a 层 (64色CMYK)
+config = HLCEncoderConfig(
+    layer_type=LayerType.L3a,
+    width=1024,
+    height=1024,
+    module_spacing=4,
+)
+encoder = HLCEncoder(config)
+data = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
+encoder.encode(data, output_path="text_examples/lorem_ipsum_L3a.png")
+
+# 5. 出师表 - L3b 层 (256色sRGB)
+config = HLCEncoderConfig(
+    layer_type=LayerType.L3b,
+    width=1536,
+    height=1536,
+    module_spacing=3,
+)
+encoder = HLCEncoder(config)
+data = b"先帝创业未半而中道崩殂..."
+encoder.encode(data, output_path="text_examples/chu_shi_biao_L3b.png")
+
+# 6. 独立宣言 - L3b
+config = HLCEncoderConfig(
+    layer_type=LayerType.L3b,
+    width=1536,
+    height=1536,
+    module_spacing=3,
+)
+encoder = HLCEncoder(config)
+data = b"In Congress, July 4, 1776... We hold these truths..."
+encoder.encode(data, output_path="text_examples/declaration_L3b.png")
+
+# 7. 心经 - L4 层 (24bit真彩，纯数字传输)
+config = HLCEncoderConfig(
+    layer_type=LayerType.L4,
+    width=2048,
+    height=2048,
+    module_spacing=1,
+)
+encoder = HLCEncoder(config)
+data = b"观自在菩萨..."
+encoder.encode(data, output_path="text_examples/heart_sutra_L4.png")
+```
+
+#### 详细示例代码
+
+可在 [examples/text_encoding_examples.py](examples/text_encoding_examples.py) 中找到完整的编码示例，包含所有经典文本的编码和自动选择层级的功能。
 ```
 
 ## 命令行工具

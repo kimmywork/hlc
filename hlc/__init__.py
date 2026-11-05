@@ -18,10 +18,16 @@ from .hexagonal import HexGrid, AxialCoord
 from .layers import Layer, L1, L2, L3a, L3b, L4, get_layer, LayerType
 from .calibration import CalibrationHub, Anchor
 from .encoder import HLCEncoder, HLCEncoderConfig
-from .decoder import HLCDecoder, HLCDecoderConfig
 from .ecc import reed_solomon_encode, reed_solomon_decode
 from .utils import generate_palette, get_module_count
 from . import cli
+
+# 可选导入 decoder (需要 cv2)
+try:
+    from .decoder import HLCDecoder, HLCDecoderConfig
+except ImportError:
+    HLCDecoder = None
+    HLCDecoderConfig = None
 
 __version__ = "0.1.0"
 __all__ = [
