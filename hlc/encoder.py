@@ -5,6 +5,7 @@ HLC 编码器
 """
 
 import numpy as np
+import math
 from typing import List, Tuple, Dict, Optional, Union
 from dataclasses import dataclass, field
 from PIL import Image, ImageDraw
@@ -47,6 +48,9 @@ class HLCEncoderConfig:
     
     # 调试
     debug: bool = False
+    
+    # 六边形遮罩
+    hexagonal_mask: bool = True
 
 
 class HLCEncoder:
@@ -323,8 +327,8 @@ class HLCEncoder:
         
         # 过滤掉校准区域的坐标
         # 简化: 只使用中心区域的 90%
-        start_idx = int(len(coords) * 0.05)
-        end_idx = int(len(coords) * 0.95)
+        start_idx = int(len(coords) * 0.01)
+        end_idx = int(len(coords) * 0.99)
         
         return coords[start_idx:end_idx]
     
@@ -388,6 +392,10 @@ class HLCEncoder:
         if self.config.logo_island:
             self._draw_logo_island(image)
         
+        # 检查是否采用六边形遮罩
+        if self.config.hexagonal_mask:
+            image = self._apply_hexagonal_mask(image)
+        
         return image
     
     def _draw_hexagon(self, image: np.ndarray, coord: AxialCoord, color: Tuple[int, int, int]) -> None:
@@ -423,6 +431,45 @@ class HLCEncoder:
                 if dx*dx + dy*dy <= radius*radius:
                     image[y, x] = (255, 255, 255)  # 白色背景
     
+
+    def _apply_hexagonal_mask(self, image: np.ndarray) -> np.ndarray:
+        """
+六边形遮罩呈的图像占充为六边形形状
+        """
+        h, w = image.shape[:2]
+        
+        # 中心坐标
+        center_x, center_y = w // 2, h // 2
+        
+        # 六边形的最大半径
+        hex_radius = min(w, h) * 0.45
+        
+        # 创建遮罩数组
+        mask = np.zeros((h, w), dtype=np.uint8)
+        
+        sqrt3 = math.sqrt(3)
+        
+        for y in range(h):
+            for x in range(w):
+                dx = x - center_x
+                dy = y - center_y
+                
+                # 六边形框其条件测试 (flat-top)
+                if (abs(dx) <= hex_radius and
+                    abs(dy) <= hex_radius * sqrt3 / 2 and
+                    abs(dx * sqrt3 + dy) <= hex_radius * sqrt3):
+                    mask[y, x] = 255
+        
+        # 应用遮罩
+        masked_image = np.zeros_like(image)
+        for c in range(3):
+            masked_image[:, :, c] = image[:, :, c] * (mask // 255)
+        
+        # 设置背景为白色
+        masked_image[mask == 0] = [255, 255, 255]
+        
+        return masked_image
+
     def _save_image(self, image: np.ndarray, path: str) -> None:
         """保存图像"""
         Image.fromarray(image).save(path)
