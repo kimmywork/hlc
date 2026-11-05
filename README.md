@@ -147,13 +147,13 @@ decoded_data, success = decoder.decode_multi_frame([
 
 | 文本名称 | 层级 | 数据大小 | 用途 | 示例图片 |
 | --- | --- | --- | --- | --- |
-| Hello World | L1 | 13 B | 任务信道底层 | example_outputs/hello_world_L1.png |
-| README 前面部分 | L2 | ~500 B | 屏幕显示 | example_outputs/readme_prefix_L2.png |
-| The quick brown fox | L2 | 44 B | 屏幕 + 打印 | example_outputs/quick_brown_fox_L2.png |
-| Lorem ipsum | L3a | ~200 B | 打印 / 屏幕保护 | example_outputs/lorem_ipsum_L3a.png |
-| 出师表 | L3b | ~800 B | 仅屏幕扫描 | example_outputs/chu_shi_biao_L3b.png |
-| 独立宣言 | L3b | ~1.2 KB | 仅屏幕扫描 | example_outputs/declaration_L3b.png |
-| 心经 | L4 | ~500 B | 纯数字传输 | example_outputs/heart_sutra_L4.png |
+| Hello World | L1 | 13 B | 任务信道底层 | ![hello_world_L1](example_outputs/hello_world_L1.png) |
+| README 前面部分 | L2 | ~275 B | 屏幕显示 | ![readme_prefix_L2](example_outputs/readme_prefix_L2.png) |
+| The quick brown fox | L2 | 43 B | 屏幕 + 打印 | ![quick_brown_fox_L2](example_outputs/quick_brown_fox_L2.png) |
+| Lorem ipsum | L3a | ~123 B | 打印 / 屏幕保护 | ![lorem_ipsum_L3a](example_outputs/lorem_ipsum_L3a.png) |
+| 出师表 | L3b | ~207 B | 仅屏幕扫描 | ![chu_shi_biao_L3b](example_outputs/chu_shi_biao_L3b.png) |
+| 独立宣言 | L3b | ~238 B | 仅屏幕扫描 | ![declaration_L3b](example_outputs/declaration_L3b.png) |
+| 心经 | L3b | ~189 B | 纯数字传输 | ![heart_sutra_L3b](example_outputs/heart_sutra_L3b.png) |
 
 #### 编码代码示例
 
@@ -177,8 +177,8 @@ encoder.encode(data, output_path="example_outputs/hello_world_L1.png")
 # 2. README prefix - L2
 config = HLCEncoderConfig(
     layer_type=LayerType.L2,
-    width=1024,
-    height=1024,
+    width=512,
+    height=512,
     module_spacing=4,
 )
 encoder = HLCEncoder(config)
@@ -192,7 +192,7 @@ config = HLCEncoderConfig(
     layer_type=LayerType.L2,
     width=512,
     height=512,
-    module_spacing=6,
+    module_spacing=4,
 )
 encoder = HLCEncoder(config)
 data = b"The quick brown fox jumps over the lazy dog"
@@ -201,8 +201,8 @@ encoder.encode(data, output_path="example_outputs/quick_brown_fox_L2.png")
 # 4. Lorem ipsum - L3a
 config = HLCEncoderConfig(
     layer_type=LayerType.L3a,
-    width=1024,
-    height=1024,
+    width=512,
+    height=512,
     module_spacing=4,
 )
 encoder = HLCEncoder(config)
@@ -212,38 +212,38 @@ encoder.encode(data, output_path="example_outputs/lorem_ipsum_L3a.png")
 # 5. Chu Shi Biao - L3b
 config = HLCEncoderConfig(
     layer_type=LayerType.L3b,
-    width=1536,
-    height=1536,
-    module_spacing=3,
+    width=512,
+    height=512,
+    module_spacing=4,
 )
 encoder = HLCEncoder(config)
-data = b"先帝创业未半而中道崩殂，今天下三分..."
+data = "先帝创业未半而中道崩殂...".encode('utf-8')
 encoder.encode(data, output_path="example_outputs/chu_shi_biao_L3b.png")
 
 # 6. Declaration - L3b
 config = HLCEncoderConfig(
     layer_type=LayerType.L3b,
-    width=1536,
-    height=1536,
-    module_spacing=3,
+    width=512,
+    height=512,
+    module_spacing=4,
 )
 encoder = HLCEncoder(config)
 data = b"In Congress, July 4, 1776... We hold these truths..."
 encoder.encode(data, output_path="example_outputs/declaration_L3b.png")
 
-# 7. Heart Sutra - L4
+# 7. Heart Sutra - L3b
 config = HLCEncoderConfig(
-    layer_type=LayerType.L4,
-    width=2048,
-    height=2048,
-    module_spacing=1,
+    layer_type=LayerType.L3b,
+    width=512,
+    height=512,
+    module_spacing=4,
 )
 encoder = HLCEncoder(config)
-data = b"观自在菩萨，行深般若波罗蜜多时..."
-encoder.encode(data, output_path="example_outputs/heart_sutra_L4.png")
+data = "观自在菩萨，行深般若波罗蜜多时...".encode('utf-8')
+encoder.encode(data, output_path="example_outputs/heart_sutra_L3b.png")
 ```
 
-#### 详细示例代码
+#### 完整的编码示例代码
 
 完整的编码示例代码可在 [examples/text_encoding_examples.py](examples/text_encoding_examples.py) 中找到。
 
