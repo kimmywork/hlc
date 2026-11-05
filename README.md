@@ -132,6 +132,8 @@ decoded_data, success = decoder.decode_multi_frame([
 
 # 多帧清晰度加权平均，随机噪声近归零
 
+```
+
 ### 文本编码示例
 
 以下示例展示使用不同 HLC 层级对各类经典文本进行编码。所有文本均从网络获取，非自我生成。
